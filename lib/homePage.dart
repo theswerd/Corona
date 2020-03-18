@@ -1,11 +1,13 @@
 import 'package:Corona/Constants.dart';
 import 'package:Corona/DataSources.dart';
+import 'package:Corona/developedByPage.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:mdi/mdi.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CoronaHomePage extends StatefulWidget {
   @override
@@ -81,14 +83,18 @@ class _CoronaHomePageState extends State<CoronaHomePage>
                     fullscreenDialog: true)),
               ),
               ListTile(
-                title: Text("Developed By"),
-                subtitle: Text("The man behind the code"),
+                title: Text("About"),
                 trailing: Icon(Mdi.account),
+                onTap: ()=>Navigator.of(context).push(MaterialPageRoute(
+                    builder: (c) => DevelopedBy(),
+                    maintainState: true,
+                    fullscreenDialog: true)),
               ),
               ListTile(
                 title: Text("Contribute"),
                 subtitle: Text("Add to our code"),
                 trailing: Icon(Mdi.codeTags),
+                onTap: ()=>launch(""),
               ),
             ],
           ),
