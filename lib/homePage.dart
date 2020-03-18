@@ -40,7 +40,9 @@ class _CoronaHomePageState extends State<CoronaHomePage>
     listItems = [
       GlobalData(),
       Container(height: 45),
-      DataByCountry(this, countryPanelController)
+      DataByCountry(this, countryPanelController),
+      Container(height: 15),
+      Text("Inspired by ncov2019.live", textAlign: TextAlign.center,)
     ];
   }
 
@@ -56,16 +58,29 @@ class _CoronaHomePageState extends State<CoronaHomePage>
         appBar: AppBar(
           title: Text("COVID-19"),
           leading: IconButton(
-              icon: Icon(Icons.info),
-              tooltip: "Menu",
+              icon: Icon(Mdi.menu),
               onPressed: () => menuPanelController.isPanelOpen
                   ? menuPanelController.close()
                   : menuPanelController.open()),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Sources", style: TextStyle(color: Colors.white)),
+              onPressed: ()=>Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (c)=>DataSourcesPage(),
+                  maintainState: true,
+                  fullscreenDialog: true
+                )
+              )
+            )
+          ],
         ),
         body: SlidingUpPanel(
           controller: menuPanelController,
           minHeight: 0,
-          color: Theme.of(context).brightness == Brightness.light?Colors.white:Colors.grey[800],
+          color: Theme.of(context).brightness == Brightness.light
+              ? Colors.white
+              : Colors.grey[800],
           padding: EdgeInsets.all(15),
           backdropEnabled: true,
           borderRadius: BorderRadius.only(
@@ -138,127 +153,135 @@ class _CoronaHomePageState extends State<CoronaHomePage>
           ),
           body: SlidingUpPanel(
             controller: countryPanelController,
-          color: Theme.of(context).brightness == Brightness.light?Colors.white:Colors.grey[800],
+            color: Theme.of(context).brightness == Brightness.light
+                ? Colors.white
+                : Colors.grey[800],
             backdropEnabled: true,
             minHeight: 0,
-            maxHeight: MediaQuery.of(context).size.width>600?800:null,
+            maxHeight: MediaQuery.of(context).size.width > 600 ? 800 : 500,
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(45), topRight: Radius.circular(45)),
             panelBuilder: (c) {
-              Map<String, double> pieChartData = {
-                "Recovered": selectedCountry['recovered'],
-                "Deaths": selectedCountry['deaths'],
-                "Serious Condition": selectedCountry['serious'],
-                "Critical Condition": selectedCountry['critical'],
-                "Infected": selectedCountry['cases'] -
-                    (selectedCountry['recovered'] +
-                        selectedCountry['deaths'] +
-                        selectedCountry['serious'] +
-                        selectedCountry['critical'])
-              };
-              print(selectedCountry['country'].toString());
-              return Column(children: <Widget>[
-                Container(
-                  height: 10,
-                ),
-                Center(
-                  child: Text(
-                    selectedCountry['country'].toString(),
-                    textAlign: TextAlign.center,
-                    textScaleFactor: 2.1,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+              try {
+                Map<String, double> pieChartData = {
+                  "Recovered": selectedCountry['recovered'],
+                  "Deaths": selectedCountry['deaths'],
+                  "Serious Condition": selectedCountry['serious'],
+                  "Critical Condition": selectedCountry['critical'],
+                  "Infected": selectedCountry['cases'] -
+                      (selectedCountry['recovered'] +
+                          selectedCountry['deaths'] +
+                          selectedCountry['serious'] +
+                          selectedCountry['critical'])
+                };
+                print(selectedCountry['country'].toString());
+                return Column(children: <Widget>[
+                  Container(
+                    height: 10,
                   ),
-                ),
-                Divider(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Column(
-                          children: <Widget>[
-                            FloatingActionButton(
-                              heroTag: "Cases",
-                              backgroundColor: Colors.blue,
-                              child: Icon(Mdi.accountGroup),
-                              onPressed: () => Share.share("In " +
-                                  selectedCountry['country'] +
-                                  ", there have been " +
-                                  selectedCountry['cases'].toStringAsFixed(0) +
-                                  " of COVID-19 as of " +
-                                  DateFormat('MMMM d, y at h:m', 'en_US')
-                                      .format(DateTime.now())),
-                            ),
-                            Container(
-                              height: 10,
-                            ),
-                            Text(selectedCountry['cases']
-                                    .toString()
-                                    .split('.')
-                                    .first +
-                                " Cases")
-                          ],
-                        ),
-                        Column(
-                          children: <Widget>[
-                            FloatingActionButton(
-                              heroTag: "Recovered",
-                              backgroundColor: Colors.green,
-                              child: Icon(Icons.healing),
-                              onPressed: () => Share.share("In " +
-                                  selectedCountry['country'].toString() +
-                                  ", " +
-                                  selectedCountry['recovered']
-                                      .toStringAsFixed(0) +
-                                  " people have recovered from COVID-19 as of " +
-                                  DateFormat('MMMM d, y at h:m', 'en_US')
-                                      .format(DateTime.now())),
-                            ),
-                            Container(
-                              height: 10,
-                            ),
-                            Text(selectedCountry['recovered']
-                                    .toString()
-                                    .split('.')
-                                    .first +
-                                " Recovered")
-                          ],
-                        ),
-                        Column(
-                          children: <Widget>[
-                            FloatingActionButton(
-                              heroTag: "Dead",
-                              backgroundColor: Colors.redAccent,
-                              child: Icon(Mdi.heartPulse),
-                              onPressed: () => Share.share("In " +
-                                  selectedCountry['country'].toString() +
-                                  ", " +
-                                  selectedCountry['deaths'].toStringAsFixed(0) +
-                                  " people have died from COVID-19 as of " +
-                                  DateFormat('MMMM d, y at h:m', 'en_US')
-                                      .format(DateTime.now())),
-                            ),
-                            Container(
-                              height: 10,
-                            ),
-                            Text(selectedCountry['deaths']
-                                    .toString()
-                                    .split('.')
-                                    .first +
-                                " Deaths")
-                          ],
-                        ),
-                      ]),
-                ),
-                Divider(),
-                PieChart(dataMap: pieChartData, colorList: [
-                  Colors.greenAccent,
-                  Colors.redAccent,
-                  Colors.orangeAccent,
-                  Colors.yellowAccent,
-                  Colors.blueAccent
-                ]),
-              ]);
+                  Center(
+                    child: Text(
+                      selectedCountry['country'].toString(),
+                      textAlign: TextAlign.center,
+                      textScaleFactor: 2.1,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Divider(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Column(
+                            children: <Widget>[
+                              FloatingActionButton(
+                                heroTag: "Cases",
+                                backgroundColor: Colors.blue,
+                                child: Icon(Mdi.accountGroup),
+                                onPressed: () => Share.share("In " +
+                                    selectedCountry['country'] +
+                                    ", there have been " +
+                                    selectedCountry['cases']
+                                        .toStringAsFixed(0) +
+                                    " of COVID-19 as of " +
+                                    DateFormat('hm a, MMMM d, y', 'en_US')
+                                        .format(DateTime.now())),
+                              ),
+                              Container(
+                                height: 10,
+                              ),
+                              Text(selectedCountry['cases']
+                                      .toString()
+                                      .split('.')
+                                      .first +
+                                  " Cases")
+                            ],
+                          ),
+                          Column(
+                            children: <Widget>[
+                              FloatingActionButton(
+                                heroTag: "Recovered",
+                                backgroundColor: Colors.green,
+                                child: Icon(Icons.healing),
+                                onPressed: () => Share.share("In " +
+                                    selectedCountry['country'].toString() +
+                                    ", " +
+                                    selectedCountry['recovered']
+                                        .toStringAsFixed(0) +
+                                    " people have recovered from COVID-19 as of " +
+                                    DateFormat('h:m a, MMMM d, y', 'en_US')
+                                        .format(DateTime.now())),
+                              ),
+                              Container(
+                                height: 10,
+                              ),
+                              Text(selectedCountry['recovered']
+                                      .toString()
+                                      .split('.')
+                                      .first +
+                                  " Recovered")
+                            ],
+                          ),
+                          Column(
+                            children: <Widget>[
+                              FloatingActionButton(
+                                heroTag: "Dead",
+                                backgroundColor: Colors.redAccent,
+                                child: Icon(Mdi.heartPulse),
+                                onPressed: () => Share.share("In " +
+                                    selectedCountry['country'].toString() +
+                                    ", " +
+                                    selectedCountry['deaths']
+                                        .toStringAsFixed(0) +
+                                    " people have died from COVID-19 as of " +
+                                    DateFormat('h:m a, MMMM d, y', 'en_US')
+                                        .format(DateTime.now())),
+                              ),
+                              Container(
+                                height: 10,
+                              ),
+                              Text(selectedCountry['deaths']
+                                      .toString()
+                                      .split('.')
+                                      .first +
+                                  " Deaths")
+                            ],
+                          ),
+                        ]),
+                  ),
+                  Divider(),
+                  PieChart(dataMap: pieChartData, colorList: [
+                    Colors.greenAccent,
+                    Colors.redAccent,
+                    Colors.orangeAccent,
+                    Colors.yellowAccent,
+                    Colors.blueAccent
+                  ]),
+                ]);
+              } catch (e) {
+                return Container();
+              }
             },
             body: ListView(padding: EdgeInsets.all(25), children: listItems),
           ),
@@ -284,6 +307,8 @@ class DataByCountry extends StatelessWidget {
             "https://docs.google.com/spreadsheets/d/e/2PACX-1vR30F8lYP3jG7YOq8es0PBpJIE5yvRVZffOyaqC0GgMBN6yt0Q-NI8pxS7hd1F9dYXnowSC6zpZmW9D/pub?gid=0&output=csv"),
         builder: (c, s) {
           if (s.connectionState != ConnectionState.done) {
+            print("Loading");
+
             return Container(
               height: 400,
               child: Column(
@@ -292,12 +317,13 @@ class DataByCountry extends StatelessWidget {
                 children: <Widget>[
                   Center(child: CircularProgressIndicator()),
                   Divider(),
-                  Text("Global Information",
+                  Text("Pulling from bnonews.com",
                       textScaleFactor: 1.5, textAlign: TextAlign.center),
                 ],
               ),
             );
           } else if (s.hasError) {
+            print("ERROROROR");
             return Container(
               height: 400,
               child: Column(
@@ -318,44 +344,50 @@ class DataByCountry extends StatelessWidget {
             );
           } else {
             try {
+              print("Loadedddd");
+
               //dom.Element globals = doc.getElementById('0R3');
               List<List<dynamic>> rowsAsListOfValues =
                   const CsvToListConverter().convert(s.data.body);
 
               rowsAsListOfValues.removeRange(0, 6);
 
-              List<Widget> columnChildren = List.generate(
-                  rowsAsListOfValues.length,
-                  (index) => ListTile(
-                        title: Text(rowsAsListOfValues[index][0]),
-                        subtitle: Text(
-                          "Total Cases: " +
-                              rowsAsListOfValues[index][1].toString(),
-                        ),
-                        trailing: Text((stringOfValueToDouble(
-                                        rowsAsListOfValues[index][5]) /
+              List<Widget> columnChildren =
+                  List.generate(rowsAsListOfValues.length, (index) {
+                try {
+                  return ListTile(
+                    title: Text(rowsAsListOfValues[index][0]),
+                    subtitle: Text(
+                      "Total Cases: " + rowsAsListOfValues[index][1].toString(),
+                    ),
+                    trailing: Text(
+                        (stringOfValueToDouble(rowsAsListOfValues[index][5]) /
                                     stringOfValueToDouble(
                                         rowsAsListOfValues[index][1]) *
                                     100)
                                 .toStringAsFixed(0) +
                             "% Recovery Rate"),
-                        onTap: () {
-                          this.superPage.panelCountry = {
-                            "country": rowsAsListOfValues[index][0],
-                            "cases": stringOfValueToDouble(
-                                rowsAsListOfValues[index][1]),
-                            "deaths": stringOfValueToDouble(
-                                rowsAsListOfValues[index][2]),
-                            "serious": stringOfValueToDouble(
-                                rowsAsListOfValues[index][3]),
-                            "critical": stringOfValueToDouble(
-                                rowsAsListOfValues[index][4]),
-                            "recovered": stringOfValueToDouble(
-                                rowsAsListOfValues[index][5])
-                          };
-                          panelController.open();
-                        },
-                      ));
+                    onTap: () {
+                      this.superPage.panelCountry = {
+                        "country": rowsAsListOfValues[index][0],
+                        "cases":
+                            stringOfValueToDouble(rowsAsListOfValues[index][1]),
+                        "deaths":
+                            stringOfValueToDouble(rowsAsListOfValues[index][2]),
+                        "serious":
+                            stringOfValueToDouble(rowsAsListOfValues[index][3]),
+                        "critical":
+                            stringOfValueToDouble(rowsAsListOfValues[index][4]),
+                        "recovered":
+                            stringOfValueToDouble(rowsAsListOfValues[index][5])
+                      };
+                      panelController.open();
+                    },
+                  );
+                } catch (e) {
+                  return Container();
+                }
+              });
 
               columnChildren.insert(
                   0,
@@ -414,7 +446,7 @@ class GlobalData extends StatelessWidget {
                   children: <Widget>[
                     Center(child: CircularProgressIndicator()),
                     Divider(),
-                    Text("Global Information",
+                    Text("Pulling from bnonews.com",
                         textScaleFactor: 1.5, textAlign: TextAlign.center),
                   ],
                 ),
