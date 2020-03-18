@@ -10,8 +10,6 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
-	<!-- <key>NSLocationWhenInUseUsageDescription</key>
-	<string>This will be used so you can see your location on the map.</string> -->
 	<key>CFBundleName</key>
 	<string>Corona</string>
 	<key>CFBundlePackageType</key>

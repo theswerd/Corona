@@ -2,10 +2,13 @@ import 'package:Corona/Constants.dart';
 import 'package:Corona/DataSources.dart';
 import 'package:Corona/developedByPage.dart';
 import 'package:csv/csv.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:intl/intl.dart';
 import 'package:mdi/mdi.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:share/share.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -91,10 +94,25 @@ class _CoronaHomePageState extends State<CoronaHomePage>
                     fullscreenDialog: true)),
               ),
               ListTile(
+                title: Text("Important Links"),
+                subtitle: Text("Online Corona Virus Resources"),
+                trailing: Icon(Mdi.linkVariant),
+                onTap: ()=>showCupertinoModalPopup(context: context, builder: (c)=>CupertinoActionSheet(
+                  title: Text("Important Links"),
+                  message: Text("Online Corona Virus Resources"),
+                  cancelButton: CupertinoActionSheetAction(onPressed: ()=>Navigator.pop(context), child: Text("Cancel")),
+                  actions: <Widget>[
+                    CupertinoActionSheetAction(onPressed: ()=>launch("https://www.who.int/health-topics/coronavirus"), child: Text("World Health Organization")),
+                    CupertinoActionSheetAction(onPressed: ()=>launch("https://www.cdc.gov/coronavirus/2019-ncov/"), child: Text("Center for Disease Control"),),
+                    CupertinoActionSheetAction(onPressed: ()=>launch("www.ecdc.europa.eu/novel-coronavirus-china"), child: Text("European Centre For Disease Control"))
+                  ],
+                ))
+              ),
+              ListTile(
                 title: Text("Contribute"),
                 subtitle: Text("Add to our code"),
                 trailing: Icon(Mdi.codeTags),
-                onTap: ()=>launch(""),
+                onTap: ()=>launch("https://github.com/theswerd/Corona/"),
               ),
             ],
           ),
@@ -137,7 +155,7 @@ class _CoronaHomePageState extends State<CoronaHomePage>
                               heroTag: "Cases",
                               backgroundColor: Colors.blue,
                               child: Icon(Mdi.accountGroup),
-                              onPressed: () {},
+                              onPressed: ()=>Share.share("In "+selectedCountry['country']+", there have been "+selectedCountry['cases'].toStringAsFixed(0)+" of COVID-19 as of "+ DateFormat('MMMM d, y at h:m', 'en_US').format(DateTime.now())),
                             ),
                             Container(
                               height: 10,
@@ -155,7 +173,7 @@ class _CoronaHomePageState extends State<CoronaHomePage>
                               heroTag: "Recovered",
                               backgroundColor: Colors.green,
                               child: Icon(Icons.healing),
-                              onPressed: () {},
+                              onPressed: ()=>Share.share("In "+selectedCountry['country'].toString()+", "+selectedCountry['recovered'].toStringAsFixed(0)+" people have recovered from COVID-19 as of "+ DateFormat('MMMM d, y at h:m', 'en_US').format(DateTime.now())),
                             ),
                             Container(
                               height: 10,
@@ -173,7 +191,7 @@ class _CoronaHomePageState extends State<CoronaHomePage>
                               heroTag: "Dead",
                               backgroundColor: Colors.redAccent,
                               child: Icon(Mdi.heartPulse),
-                              onPressed: () {},
+                              onPressed: ()=>Share.share("In "+selectedCountry['country'].toString()+", "+selectedCountry['deaths'].toStringAsFixed(0)+" people have died from COVID-19 as of "+ DateFormat('MMMM d, y at h:m', 'en_US').format(DateTime.now())),
                             ),
                             Container(
                               height: 10,
