@@ -21,7 +21,13 @@ class _CoronaHomePageState extends State<CoronaHomePage>
     with TickerProviderStateMixin {
   PanelController menuPanelController;
   PanelController countryPanelController;
-  Map selectedCountry = {};
+  Map selectedCountry = {
+    "cases": 0.toDouble(),
+    "deaths": 0.toDouble(),
+    "serious": 0.toDouble(),
+    "critical": 0.toDouble(),
+    "recovered": 0.toDouble()
+  };
 
   List<Widget> listItems;
   @override
@@ -59,7 +65,7 @@ class _CoronaHomePageState extends State<CoronaHomePage>
         body: SlidingUpPanel(
           controller: menuPanelController,
           minHeight: 0,
-          color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).brightness == Brightness.light?Colors.white:Colors.grey[800],
           padding: EdgeInsets.all(15),
           backdropEnabled: true,
           borderRadius: BorderRadius.only(
@@ -88,39 +94,54 @@ class _CoronaHomePageState extends State<CoronaHomePage>
               ListTile(
                 title: Text("About"),
                 trailing: Icon(Mdi.account),
-                onTap: ()=>Navigator.of(context).push(MaterialPageRoute(
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (c) => DevelopedBy(),
                     maintainState: true,
                     fullscreenDialog: true)),
               ),
               ListTile(
-                title: Text("Important Links"),
-                subtitle: Text("Online Corona Virus Resources"),
-                trailing: Icon(Mdi.linkVariant),
-                onTap: ()=>showCupertinoModalPopup(context: context, builder: (c)=>CupertinoActionSheet(
                   title: Text("Important Links"),
-                  message: Text("Online Corona Virus Resources"),
-                  cancelButton: CupertinoActionSheetAction(onPressed: ()=>Navigator.pop(context), child: Text("Cancel")),
-                  actions: <Widget>[
-                    CupertinoActionSheetAction(onPressed: ()=>launch("https://www.who.int/health-topics/coronavirus"), child: Text("World Health Organization")),
-                    CupertinoActionSheetAction(onPressed: ()=>launch("https://www.cdc.gov/coronavirus/2019-ncov/"), child: Text("Center for Disease Control"),),
-                    CupertinoActionSheetAction(onPressed: ()=>launch("www.ecdc.europa.eu/novel-coronavirus-china"), child: Text("European Centre For Disease Control"))
-                  ],
-                ))
-              ),
+                  subtitle: Text("Online Corona Virus Resources"),
+                  trailing: Icon(Mdi.linkVariant),
+                  onTap: () => showCupertinoModalPopup(
+                      context: context,
+                      builder: (c) => CupertinoActionSheet(
+                            title: Text("Important Links"),
+                            message: Text("Online Corona Virus Resources"),
+                            cancelButton: CupertinoActionSheetAction(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text("Cancel")),
+                            actions: <Widget>[
+                              CupertinoActionSheetAction(
+                                  onPressed: () => launch(
+                                      "https://www.who.int/health-topics/coronavirus"),
+                                  child: Text("World Health Organization")),
+                              CupertinoActionSheetAction(
+                                onPressed: () => launch(
+                                    "https://www.cdc.gov/coronavirus/2019-ncov/"),
+                                child: Text("Center for Disease Control"),
+                              ),
+                              CupertinoActionSheetAction(
+                                  onPressed: () => launch(
+                                      "www.ecdc.europa.eu/novel-coronavirus-china"),
+                                  child: Text(
+                                      "European Centre For Disease Control"))
+                            ],
+                          ))),
               ListTile(
                 title: Text("Contribute"),
                 subtitle: Text("Add to our code"),
                 trailing: Icon(Mdi.codeTags),
-                onTap: ()=>launch("https://github.com/theswerd/Corona/"),
+                onTap: () => launch("https://github.com/theswerd/Corona/"),
               ),
             ],
           ),
           body: SlidingUpPanel(
             controller: countryPanelController,
-            color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).brightness == Brightness.light?Colors.white:Colors.grey[800],
             backdropEnabled: true,
             minHeight: 0,
+            maxHeight: MediaQuery.of(context).size.width>600?800:null,
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(45), topRight: Radius.circular(45)),
             panelBuilder: (c) {
@@ -129,6 +150,11 @@ class _CoronaHomePageState extends State<CoronaHomePage>
                 "Deaths": selectedCountry['deaths'],
                 "Serious Condition": selectedCountry['serious'],
                 "Critical Condition": selectedCountry['critical'],
+                "Infected": selectedCountry['cases'] -
+                    (selectedCountry['recovered'] +
+                        selectedCountry['deaths'] +
+                        selectedCountry['serious'] +
+                        selectedCountry['critical'])
               };
               print(selectedCountry['country'].toString());
               return Column(children: <Widget>[
@@ -155,7 +181,13 @@ class _CoronaHomePageState extends State<CoronaHomePage>
                               heroTag: "Cases",
                               backgroundColor: Colors.blue,
                               child: Icon(Mdi.accountGroup),
-                              onPressed: ()=>Share.share("In "+selectedCountry['country']+", there have been "+selectedCountry['cases'].toStringAsFixed(0)+" of COVID-19 as of "+ DateFormat('MMMM d, y at h:m', 'en_US').format(DateTime.now())),
+                              onPressed: () => Share.share("In " +
+                                  selectedCountry['country'] +
+                                  ", there have been " +
+                                  selectedCountry['cases'].toStringAsFixed(0) +
+                                  " of COVID-19 as of " +
+                                  DateFormat('MMMM d, y at h:m', 'en_US')
+                                      .format(DateTime.now())),
                             ),
                             Container(
                               height: 10,
@@ -173,7 +205,14 @@ class _CoronaHomePageState extends State<CoronaHomePage>
                               heroTag: "Recovered",
                               backgroundColor: Colors.green,
                               child: Icon(Icons.healing),
-                              onPressed: ()=>Share.share("In "+selectedCountry['country'].toString()+", "+selectedCountry['recovered'].toStringAsFixed(0)+" people have recovered from COVID-19 as of "+ DateFormat('MMMM d, y at h:m', 'en_US').format(DateTime.now())),
+                              onPressed: () => Share.share("In " +
+                                  selectedCountry['country'].toString() +
+                                  ", " +
+                                  selectedCountry['recovered']
+                                      .toStringAsFixed(0) +
+                                  " people have recovered from COVID-19 as of " +
+                                  DateFormat('MMMM d, y at h:m', 'en_US')
+                                      .format(DateTime.now())),
                             ),
                             Container(
                               height: 10,
@@ -191,7 +230,13 @@ class _CoronaHomePageState extends State<CoronaHomePage>
                               heroTag: "Dead",
                               backgroundColor: Colors.redAccent,
                               child: Icon(Mdi.heartPulse),
-                              onPressed: ()=>Share.share("In "+selectedCountry['country'].toString()+", "+selectedCountry['deaths'].toStringAsFixed(0)+" people have died from COVID-19 as of "+ DateFormat('MMMM d, y at h:m', 'en_US').format(DateTime.now())),
+                              onPressed: () => Share.share("In " +
+                                  selectedCountry['country'].toString() +
+                                  ", " +
+                                  selectedCountry['deaths'].toStringAsFixed(0) +
+                                  " people have died from COVID-19 as of " +
+                                  DateFormat('MMMM d, y at h:m', 'en_US')
+                                      .format(DateTime.now())),
                             ),
                             Container(
                               height: 10,
@@ -210,7 +255,8 @@ class _CoronaHomePageState extends State<CoronaHomePage>
                   Colors.greenAccent,
                   Colors.redAccent,
                   Colors.orangeAccent,
-                  Colors.yellowAccent
+                  Colors.yellowAccent,
+                  Colors.blueAccent
                 ]),
               ]);
             },
@@ -318,6 +364,8 @@ class DataByCountry extends StatelessWidget {
                     child: Text("Cases by country",
                         textAlign: TextAlign.center, textScaleFactor: 1.65),
                   ));
+              print("SIZEEE");
+              print(MediaQuery.of(context).size.width);
               return Column(
                 children: columnChildren,
               );
